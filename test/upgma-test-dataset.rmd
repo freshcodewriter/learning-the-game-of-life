@@ -1,0 +1,100 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+library(phangorn)
+library(ape)
+library(castor)
+ref_tree = read_tree(file='/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-3/ref-trees/07div_200_targets_30_states_REF_trim_n.nw',
+                     include_edge_lengths=FALSE,
+                     check_label_uniqueness=TRUE)
+ref_tree$tip.label <- c(128:1)
+ref_tree$edge.length <- rep(1, 254)
+```
+
+```{r}
+clade_similarity <- function(idx, ref_tree){
+  input_file <- paste0("/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/calculated_pairwise_matrices3/pairwise", as.character(idx), ".csv")
+  DATA <- read.csv(file=input_file, header=TRUE, sep=",")
+  DATA <- DATA[,-1]
+  dim(DATA)
+  rownames(DATA) = 1:128
+  colnames(DATA) = 1:128
+  my_dim <- as.dist(DATA)
+  tree <- upgma(my_dim)
+  tree$edge.length <- rep(1, 254)
+  
+  res <- comparePhylo(tree, ref_tree)
+  x <- strsplit(res$messages, '\t')[[8]]
+  x <- as.character(x)
+  x <- strsplit(x, ' ')[[1]][1]
+  x <- as.numeric(x)
+  y <- 127 - x
+  return (y)
+}
+```
+
+
+```{r}
+score_list_lat = rep(0,300)
+for (i in c(1:300))
+{
+  score_list_lat[i] <- clade_similarity(i, ref_tree) 
+}
+score_list_lat
+```
+
+
+```{r}
+score_list_emb = rep(0,300)
+for (i in c(0:299)){
+  idx <- index[i]
+  file_name <- paste0(i, '.vec')
+  print(file_name)
+  
+  score_list_emb[i] <- clade_similarity_2(idx, ref_tree, file_name)
+  # break
+}
+score_list_emb
+```
+
+```{r}
+hist(score_list_lat/127)
+```
+
+```{r}
+hist(score_list_emb/127)
+```
+
+
+```{r}
+clade_similarity_2 <- function(idx, ref_tree, file_name){
+  file_path <- paste0("/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/test/test-embedding/", file_name)
+  # print(file_path)
+  DATA <- read.csv(file=file_path, header=FALSE, sep=",")
+  # dim(DATA)
+  rownames(DATA) = 1:128
+  colnames(DATA) = 1:200
+  dm_2 = matrix(0, 128, 128)
+  for (i in c(1: 128))
+  {
+    row_matrix = matrix(rep(DATA[i,], nrow=128, byrow = TRUE))
+    bool_matrix = DATA - row_matrix != 0
+    dist_col = rowSums(bool_matrix)
+    dm_2[, i] = dist_col
+  }
+  my_dim <- as.dist(dm_2)
+  tree <- upgma(my_dim)
+  tree$edge.length <- rep(1, 254)
+  
+  res <- comparePhylo(tree, ref_tree)
+  x <- strsplit(res$messages, '\t')[[8]]
+  x <- as.character(x)
+  x <- strsplit(x, ' ')[[1]][1]
+  x <- as.numeric(x)
+  y <- 127 - x
+  return (y)
+}
+```
+

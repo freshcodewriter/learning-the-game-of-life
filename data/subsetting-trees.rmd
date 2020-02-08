@@ -1,0 +1,90 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(ape)
+library(castor)
+ref_tree = read_tree(file='/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-3/ref-trees/07div_200_targets_30_states_REF_trim_n.nw',
+                     include_edge_lengths=FALSE,
+                     check_label_uniqueness=TRUE)
+ref_tree$edge.length <- c(rep(1, 254))
+dist_matrix <- cophenetic.phylo(ref_tree)
+dist_matrix
+write.csv(dist_matrix, file =
+'/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-3/ref-trees/pairwise-dist.csv')
+```
+
+```{r}
+library(ape)
+ref_tree = read_tree(file='/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-2/ref-trees/10div_200_targets_30_states_REF_trim_n.nw',
+                     include_edge_lengths=FALSE,
+                     check_label_uniqueness=TRUE)
+ref_tree$edge.length <- c(rep(1, 2046))
+dist_matrix <- cophenetic.phylo(ref_tree)
+write.csv(dist_matrix, file = '/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-2/ref-trees/pairwise-dist.csv')
+```
+```{r}
+dim(dist_matrix)
+```
+
+```{r}
+plot(ref_tree)
+```
+
+```{r}
+ref_tree$Nnode
+```
+
+```{r}
+cophenetic.phylo(ref_tree)[0:10, 0:10]
+```
+
+```{r}
+library(castor)
+# ref_tree = read_tree(file='/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-1/ref-trees/16div_200_targets_30_states_REF.nw',
+#                      include_edge_lengths=FALSE,
+#                      check_label_uniqueness=TRUE)
+ref_tree = read_tree(file='/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/dataset-2/ref-trees/10div_200_targets_30_states_REF_trim_n.nw',
+                     include_edge_lengths=FALSE,
+                     check_label_uniqueness=TRUE)
+```
+```{r}
+find_root(ref_tree)
+```
+```{r}
+get_all_distances_to_root(ref_tree)
+```
+
+```{r}
+as.character(ref_tree$tip.label)
+```
+
+```{r}
+get_pairwise_distances(ref_tree, A=as.character(ref_tree$tip.label), B=as.character(ref_tree$tip.label))
+```
+
+```{r}
+DATA_DIR = "/home/derek/studyAboard/2019fall/ESE546/project/learning-the-game-of-life/data/perl-test"
+NEXUX_DIR = paste0(DATA_DIR, "/NEXUS/")
+OUTPUT_DIR = paste0(DATA_DIR, "/OUTPUT/")
+
+read_file_path = paste0(NEXUX_DIR, "/16div_200_targets_30_states_0001rep_FAST_sample_1000_Weighted.nexus")
+write_file_path = paste0(OUTPUT_DIR, "16div_200_targets_30_states_0001rep_FAST_sample_1000_Weighted.nw")
+cell_id = read.table(read_file_path, 
+                     sep = "\t", nrows = 1000, skip = 11,
+                     col.names = c("cell_id","seq"))$cell_id
+cell_id = as.character(cell_id)
+subtree = get_subtree_with_tips(ref_tree, only_tips=cell_id)$subtree
+write_tree(subtree, file = write_file_path)
+```
+
+```{r}
+ref_tree$
+```
+
+```{r}
+subtree$root
+```
+
